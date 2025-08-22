@@ -29,5 +29,12 @@
     "@typescript-eslint/parser": "^8.0.0",
     "eslint": "^9.33.0",
     "globals": "^15.0.0"
+  },
+  "dependencies": {
+    "@langchain/core": "^0.3.0",
+    "@langchain/langgraph": "^0.2.0",
+    "@langchain/aws": "^0.1.0",
+    "@aws-sdk/client-bedrock-runtime": "^3.0.0",
+    "dotenv": "^16.4.0"
   }
 }

@@ -1,70 +1,32 @@
-# Ski Planner
+# 🎿 Ski Planner
 
-A Node.js 24 native TypeScript project with native test runner and ESLint.
+**Work in Progress** - AI-powered ski trip planning using multi-agent workflows.
 
-## Features
+## Tech Stack
 
-- **Native TypeScript**: Uses Node.js 24's `--experimental-strip-types` flag - no compilation step needed
-- **ESLint**: Configured with TypeScript rules for code quality
-- **Native Testing**: Uses Node.js built-in test runner with TypeScript support
-- **Modern Setup**: ES modules, strict TypeScript configuration
+- **Node.js 24** - Native TypeScript support (`--experimental-strip-types`)
+- **TypeScript** - Type-safe development
+- **LangGraph** - Multi-agent workflow orchestration
+- **AWS Bedrock** - LLM inference (Amazon Nova Lite / Claude Sonnet 4)
+- **ESLint 9** - Code linting with flat config
+- **Node.js Test Runner** - Native testing framework
 
-## Prerequisites
-
-- Node.js 24 or higher
-
-## Installation
+## Development
 
 ```bash
 npm install
+npm test    # Fast tests with mocked LLM calls
+npm start   # Run the application
 ```
 
-## Usage
+## Architecture
 
-### Run the application
-```bash
-npm start
-```
+Multi-agent system with specialized agents:
+- **Weather Agent** - Analyzes conditions
+- **Resort Agent** - Recommends ski resorts  
+- **Gear Agent** - Suggests equipment
+- **Planning Agent** - Coordinates final itinerary
 
-### Development with watch mode
-```bash
-npm run dev
-```
+---
 
-### Run tests
-```bash
-# Using Node.js native test runner
-npm test
-
-# Native test runner with watch mode
-npm run test:watch
-```
-
-### Linting
-```bash
-# Check for linting errors
-npm run lint
-
-# Fix auto-fixable linting errors
-npm run lint:fix
-```
-
-## Project Structure
-
-```
-ski-planner/
-├── index.ts              # Main application entry point
-├── test/                 # Test directory
-│   └── index.test.ts     # Example test file
-├── package.json          # Node.js configuration
-├── tsconfig.json         # TypeScript configuration
-├── eslint.config.js      # ESLint v9 flat configuration
-└── .gitignore            # Git ignore rules
-```
-
-## Development Notes
-
-- TypeScript files are executed directly using Node.js 24's native TypeScript support
-- No build/compilation step required
-- Tests use Node.js built-in test runner with native TypeScript support
-- ESLint is configured for TypeScript with strict rules
+*This is an experimental project exploring LangGraph multi-agent workflows with AWS Bedrock.*
