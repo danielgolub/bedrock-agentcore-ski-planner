@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 
 import 'dotenv/config';
-import { planSkiTrip, getDetailedSkiPlan, type SkiPlanningResult } from './src/langgraph/ski-planner-workflow.ts';
+import { planSkiTrip, getDetailedSkiPlan, type SkiPlanningResult } from './langgraph/ski-planner-workflow.ts';
+import { logger, loggerUtils, createChildLogger } from './services/logger.ts';
 
 /**
  * Ski Planner - A TypeScript Node.js application with LangGraph
@@ -15,11 +16,16 @@ export function greet(name: string): string {
  * Simple ski trip planning function
  */
 export async function planTrip(location: string, skillLevel: string): Promise<string> {
+  const skiLogger = createChildLogger({ module: 'ski-planner', location, skillLevel });
+  
   try {
-    const plan = await planSkiTrip(location, skillLevel);
-    return plan;
+    return await loggerUtils.timeAsync(
+      `Planning ski trip for ${skillLevel} skier in ${location}`,
+      () => planSkiTrip(location, skillLevel),
+      skiLogger
+    );
   } catch (error) {
-    console.error('Error planning ski trip:', error);
+    skiLogger.error('Error planning ski trip:', error instanceof Error ? error.message : error);
     return 'Unable to generate ski plan. Please check your AWS Bedrock API key and region settings.';
   }
 }
@@ -28,11 +34,16 @@ export async function planTrip(location: string, skillLevel: string): Promise<st
  * Detailed ski trip planning function
  */
 export async function getDetailedPlan(location: string, skillLevel: string): Promise<SkiPlanningResult | null> {
+  const skiLogger = createChildLogger({ module: 'ski-planner', location, skillLevel });
+  
   try {
-    const detailedPlan = await getDetailedSkiPlan(location, skillLevel);
-    return detailedPlan;
+    return await loggerUtils.timeAsync(
+      `Getting detailed ski plan for ${skillLevel} skier in ${location}`,
+      () => getDetailedSkiPlan(location, skillLevel),
+      skiLogger
+    );
   } catch (error) {
-    console.error('Error getting detailed ski plan:', error);
+    skiLogger.error('Error getting detailed ski plan:', error instanceof Error ? error.message : error);
     return null;
   }
 }
@@ -41,45 +52,45 @@ export async function getDetailedPlan(location: string, skillLevel: string): Pro
  * Interactive CLI function for ski planning
  */
 export async function runInteractiveSkiPlanner(): Promise<void> {
-  console.log(greet('Skier'));
-  console.log('\n🎿 LangGraph Ski Planner Demo 🎿\n');
+  logger.info(greet('Skier'));
+  logger.info('\n🎿 LangGraph Ski Planner Demo 🎿\n');
 
   // Demo with sample data
   const sampleLocation = 'Colorado, USA';
   const sampleSkillLevel = 'intermediate';
 
-  console.log(`Planning a ski trip for ${sampleSkillLevel} skier in ${sampleLocation}...\n`);
+  logger.info(`Planning a ski trip for ${sampleSkillLevel} skier in ${sampleLocation}...\n`);
 
   if (!process.env.AWS_BEARER_TOKEN_BEDROCK) {
-    console.log('⚠️  AWS Bedrock API key not found. Set AWS_BEARER_TOKEN_BEDROCK environment variable to use LangGraph with Bedrock.');
-    console.log('📄 Create a .env file with your Bedrock API key:');
-    console.log('   AWS_BEARER_TOKEN_BEDROCK=your_bedrock_api_key_here');
-    console.log('   AWS_REGION=eu-central-1');
-    console.log('📚 See .env.example for complete template');
-    console.log('🔑 Get your API key from: AWS Console → Bedrock → API keys');
+    logger.warn('⚠️  AWS Bedrock API key not found. Set AWS_BEARER_TOKEN_BEDROCK environment variable to use LangGraph with Bedrock.');
+    logger.info('📄 Create a .env file with your Bedrock API key:');
+    logger.info('   AWS_BEARER_TOKEN_BEDROCK=your_bedrock_api_key_here');
+    logger.info('   AWS_REGION=eu-central-1');
+    logger.info('📚 See .env.example for complete template');
+    logger.info('🔑 Get your API key from: AWS Console → Bedrock → API keys');
     return;
   }
 
   try {
-    console.log('🔄 Running LangGraph workflow...\n');
+    logger.info('🔄 Running LangGraph workflow...\n');
     
     // Get the detailed plan
     const detailedPlan = await getDetailedPlan(sampleLocation, sampleSkillLevel);
     
     if (detailedPlan) {
-      console.log('🌤️  WEATHER ANALYSIS:');
-      console.log(detailedPlan.weatherInfo);
-      console.log('\n🏔️  RESORT RECOMMENDATIONS:');
-      console.log(detailedPlan.resortRecommendations);
-      console.log('\n🎿 GEAR SUGGESTIONS:');
-      console.log(detailedPlan.gearSuggestions);
-      console.log('\n📋 FINAL PLAN:');
-      console.log(detailedPlan.finalPlan);
+      logger.info('🌤️  WEATHER ANALYSIS:');
+      logger.info(detailedPlan.weatherInfo);
+      logger.info('\n🏔️  RESORT RECOMMENDATIONS:');
+      logger.info(detailedPlan.resortRecommendations);
+      logger.info('\n🎿 GEAR SUGGESTIONS:');
+      logger.info(detailedPlan.gearSuggestions);
+      logger.info('\n📋 FINAL PLAN:');
+      logger.info(detailedPlan.finalPlan);
     } else {
-      console.log('❌ Failed to generate ski plan.');
+      logger.error('❌ Failed to generate ski plan.');
     }
   } catch (error) {
-    console.error('❌ Error running ski planner:', error);
+    logger.error('❌ Error running ski planner:', error instanceof Error ? error.message : error);
   }
 }
 
@@ -89,5 +100,5 @@ export async function main(): Promise<void> {
 
 // Run main if this file is executed directly
 if (import.meta.url.endsWith(process.argv[1] || '')) {
-  main().catch(console.error);
+  main().catch((error) => logger.error('Failed to run main:', error instanceof Error ? error.message : error));
 }

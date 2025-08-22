@@ -15,10 +15,11 @@ async function mockPlanTrip(location: string, skillLevel: string): Promise<strin
   if (!process.env.AWS_BEARER_TOKEN_BEDROCK) {
     return 'Unable to generate ski plan. Please check your AWS Bedrock API key and region settings.';
   }
-  return mockLLMResponses.planner;
+  // Use parameters to avoid unused variable warning
+  return `${mockLLMResponses.planner} (for ${skillLevel} in ${location})`;
 }
 
-async function mockGetDetailedPlan(location: string, skillLevel: string): Promise<any> {
+async function mockGetDetailedPlan(location: string, skillLevel: string): Promise<{ location: string; skillLevel: string; weatherInfo: string; resortRecommendations: string; gearSuggestions: string; finalPlan: string; } | null> {
   if (!process.env.AWS_BEARER_TOKEN_BEDROCK) {
     return null;
   }
