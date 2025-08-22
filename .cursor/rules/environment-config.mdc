@@ -1,0 +1,11 @@
+---
+description: Use env vars with defaults
+globs: ["**/services/*.ts", "**/index.ts"]
+alwaysApply: false
+---
+
+Use env vars with sensible defaults:
+```typescript
+const port = parseInt(process.env.PORT || '8080', 10);
+const host = 'localhost';
+```

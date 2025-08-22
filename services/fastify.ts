@@ -53,7 +53,7 @@ export async function createServer(): Promise<typeof Fastify> {
 /**
  * Auto-load all route files from the routes directory
  */
-async function loadRoutes(server: FastifyInstance): Promise<void> {
+async function loadRoutes(server: Fastify.FastifyInstance): Promise<void> {
   const routesDir = path.resolve(__dirname, '../routes');
   
   try {
@@ -97,12 +97,14 @@ async function loadRoutes(server: FastifyInstance): Promise<void> {
 /**
  * Start the Fastify server
  */
-export async function startServer(port: number = 3000): Promise<FastifyInstance> {
+export async function startServer(): Promise<Fastify.FastifyInstance> {
   const server = await createServer();
+  const port = parseInt(process.env.PORT || '8080', 10);
+  const host = 'localhost';
   
   try {
-    await server.listen({ port });
-    server.log.info(`🚀 Server listening on http://localhost:${port}`);
+    await server.listen({ port, host });
+    server.log.info(`🚀 Server listening on http://${host}:${port}`);
     return server;
   } catch (error) {
     server.log.error(error, 'Failed to start server');
@@ -113,12 +115,12 @@ export async function startServer(port: number = 3000): Promise<FastifyInstance>
 /**
  * Gracefully stop the server
  */
-export async function stopServer(server: FastifyInstance): Promise<void> {
+export async function stopServer(server: Fastify.FastifyInstance): Promise<void> {
   try {
     await server.close();
-    logger.info('✅ Server stopped gracefully');
+    server.log.info('✅ Server stopped gracefully');
   } catch (error) {
-    logger.error(error, 'Error stopping server');
+    server.log.error(error, 'Error stopping server');
     process.exit(1);
   }
 }

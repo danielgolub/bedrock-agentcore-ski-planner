@@ -1,0 +1,12 @@
+---
+description: Use Fastify.TypeName syntax for types (CommonJS compatibility)
+globs: ["**/routes/*.ts", "**/services/fastify.ts"]
+alwaysApply: true
+---
+
+Use `Fastify.TypeName` syntax, don't import types directly:
+```typescript
+import Fastify from 'fastify';
+// ✅ Use: Fastify.FastifyInstance, Fastify.FastifyRequest, Fastify.FastifyReply
+// ❌ Don't: import { FastifyInstance } from 'fastify'
+```

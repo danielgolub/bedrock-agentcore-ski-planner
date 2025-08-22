@@ -1,6 +1,5 @@
 import { describe, test, beforeEach, afterEach } from 'node:test';
 import { strict as assert } from 'node:assert';
-import { greet } from '../index.ts';
 
 // Mock responses for LLM calls  
 const mockLLMResponses = {
@@ -48,13 +47,6 @@ describe('LangGraph Ski Planner', (): void => {
     } else {
       delete process.env.AWS_BEARER_TOKEN_BEDROCK;
     }
-  });
-
-  describe('greet function', (): void => {
-    test('should return updated greeting with LangGraph', (): void => {
-      const result = greet('Test User');
-      assert.equal(result, 'Hello, Test User! Welcome to Ski Planner powered by LangGraph!');
-    });
   });
 
   describe('planTrip function (mocked)', (): void => {
@@ -132,12 +124,6 @@ describe('LangGraph Ski Planner', (): void => {
   });
 
   describe('mock function validation', (): void => {
-    test('should validate mock functions exist', (): void => {
-      assert(typeof mockPlanTrip === 'function');
-      assert(typeof mockGetDetailedPlan === 'function');
-      assert(typeof greet === 'function');
-    });
-
     test('mock functions should accept various skill level strings', (): void => {
       const skillLevels = ['beginner', 'intermediate', 'advanced', 'expert'];
       

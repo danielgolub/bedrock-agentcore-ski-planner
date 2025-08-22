@@ -1,0 +1,11 @@
+---
+description: Always use .ts extensions for local imports
+globs: ["**/*.ts", "**/*.tsx"]
+alwaysApply: true
+---
+
+Always use `.ts` extensions for local file imports:
+```typescript
+import { logger } from './logger.ts'  // ✅ correct
+import { logger } from './logger.js'  // ❌ wrong
+```
