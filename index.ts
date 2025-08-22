@@ -3,6 +3,7 @@
 import 'dotenv/config';
 import { planSkiTrip, getDetailedSkiPlan, type SkiPlanningResult } from './langgraph/ski-planner-workflow.ts';
 import { logger, loggerUtils, createChildLogger } from './services/logger.ts';
+import { startServer, stopServer } from './services/fastify.ts';
 
 /**
  * Ski Planner - A TypeScript Node.js application with LangGraph
@@ -25,7 +26,7 @@ export async function planTrip(location: string, skillLevel: string): Promise<st
       skiLogger
     );
   } catch (error) {
-    skiLogger.error('Error planning ski trip:', error instanceof Error ? error.message : error);
+    skiLogger.error(error instanceof Error ? error : new Error(String(error)), 'Error planning ski trip');
     return 'Unable to generate ski plan. Please check your AWS Bedrock API key and region settings.';
   }
 }
@@ -43,7 +44,7 @@ export async function getDetailedPlan(location: string, skillLevel: string): Pro
       skiLogger
     );
   } catch (error) {
-    skiLogger.error('Error getting detailed ski plan:', error instanceof Error ? error.message : error);
+    skiLogger.error(error instanceof Error ? error : new Error(String(error)), 'Error getting detailed ski plan');
     return null;
   }
 }
@@ -90,15 +91,49 @@ export async function runInteractiveSkiPlanner(): Promise<void> {
       logger.error('❌ Failed to generate ski plan.');
     }
   } catch (error) {
-    logger.error('❌ Error running ski planner:', error instanceof Error ? error.message : error);
+    logger.error(error instanceof Error ? error : new Error(String(error)), '❌ Error running ski planner');
+  }
+}
+
+/**
+ * Start the Fastify server
+ */
+export async function startWebServer(): Promise<void> {
+  const port = parseInt(process.env.PORT || '3000', 10);
+  
+  logger.info('🚀 Starting Ski Planner Web Server...');
+  
+  try {
+    const server = await startServer(port);
+    
+    // Handle graceful shutdown
+    const gracefulShutdown = async (signal: string) => {
+      logger.info(`📡 Received ${signal}, starting graceful shutdown...`);
+      await stopServer(server);
+      process.exit(0);
+    };
+    
+    process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
+    process.on('SIGINT', () => gracefulShutdown('SIGINT'));
+    
+  } catch (error) {
+    logger.error(error instanceof Error ? error : new Error(String(error)), '❌ Failed to start web server');
+    process.exit(1);
   }
 }
 
 export async function main(): Promise<void> {
-  await runInteractiveSkiPlanner();
+  // Check if we should start the web server or run interactive mode
+  const mode = process.env.MODE || process.argv[2];
+  
+  if (mode === 'server' || mode === 'web') {
+    await startWebServer();
+  } else {
+    await runInteractiveSkiPlanner();
+  }
 }
 
 // Run main if this file is executed directly
 if (import.meta.url.endsWith(process.argv[1] || '')) {
-  main().catch((error) => logger.error('Failed to run main:', error instanceof Error ? error.message : error));
+  main().catch((error) => logger.error(error instanceof Error ? error : new Error(String(error)), 'Failed to run main'));
 }

@@ -3,7 +3,7 @@ import pino from 'pino';
 /**
  * Logger service configuration
  */
-const loggerConfig = {
+export const loggerConfig = {
   level: process.env.LOG_LEVEL || 'info',
   transport: {
     target: 'pino-pretty',
