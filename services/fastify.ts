@@ -1,4 +1,4 @@
-import Fastify from 'fastify';
+import Fastify, { FastifyInstance } from 'fastify';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -10,7 +10,7 @@ const __dirname = path.dirname(__filename);
 /**
  * Create and configure Fastify server instance
  */
-export async function createServer(): Promise<typeof Fastify> {
+export async function createServer(): Promise<FastifyInstance> {
   // Create Fastify instance with Pino logger integration
   const server = Fastify({
     logger: loggerConfig,
@@ -53,7 +53,7 @@ export async function createServer(): Promise<typeof Fastify> {
 /**
  * Auto-load all route files from the routes directory
  */
-async function loadRoutes(server: Fastify.FastifyInstance): Promise<void> {
+async function loadRoutes(server: FastifyInstance): Promise<void> {
   const routesDir = path.resolve(__dirname, '../routes');
   
   try {
@@ -97,7 +97,7 @@ async function loadRoutes(server: Fastify.FastifyInstance): Promise<void> {
 /**
  * Start the Fastify server
  */
-export async function startServer(): Promise<Fastify.FastifyInstance> {
+export async function startServer(): Promise<FastifyInstance> {
   const server = await createServer();
   const port = parseInt(process.env.PORT || '8080', 10);
   const host = 'localhost';
@@ -115,7 +115,7 @@ export async function startServer(): Promise<Fastify.FastifyInstance> {
 /**
  * Gracefully stop the server
  */
-export async function stopServer(server: Fastify.FastifyInstance): Promise<void> {
+export async function stopServer(server: FastifyInstance): Promise<void> {
   try {
     await server.close();
     server.log.info('✅ Server stopped gracefully');

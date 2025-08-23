@@ -1,4 +1,4 @@
-import Fastify from "fastify";
+import { FastifyRequest, FastifyReply, FastifyInstance } from "fastify";
 import { getDetailedSkiPlan } from '../langgraph/ski-planner-workflow.ts';
 
 /**
@@ -6,7 +6,7 @@ import { getDetailedSkiPlan } from '../langgraph/ski-planner-workflow.ts';
  */
 interface InvocationsRequest {
   prompt: string;
-  [key: string]: any; // Allow additional properties for flexibility
+  [key: string]: unknown; // Allow additional properties for flexibility
 }
 
 /**
@@ -64,8 +64,8 @@ function parsePrompt(prompt: string): { location: string; skillLevel: string } {
  * Invocations route handler - Main AgentCore interface
  */
 async function invocationsHandler(
-  request: Fastify.FastifyRequest<{ Body: InvocationsRequest }>,
-  reply: Fastify.FastifyReply
+  request: FastifyRequest<{ Body: InvocationsRequest }>,
+  reply: FastifyReply
 ): Promise<InvocationsResponse> {
   const startTime = Date.now();
   
@@ -124,7 +124,7 @@ async function invocationsHandler(
 /**
  * Register invocations route with Fastify
  */
-export default async function invocationsRoute(fastify: Fastify.FastifyInstance): Promise<void> {
+export default async function invocationsRoute(fastify: FastifyInstance): Promise<void> {
   fastify.route({
     method: 'POST',
     url: '/invocations',

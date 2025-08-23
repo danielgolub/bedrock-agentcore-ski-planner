@@ -58,7 +58,11 @@ export const loggerUtils = {
       return result;
     } catch (error) {
       const duration = Date.now() - start;
-      contextLogger.error(`Failed: ${label} (${duration}ms)`, error instanceof Error ? error.message : error);
+      contextLogger.error({
+        message: `Failed: ${label}`,
+        error,
+        duration,
+      });
       throw error;
     }
   },
@@ -77,7 +81,11 @@ export const loggerUtils = {
       return result;
     } catch (error) {
       const duration = Date.now() - start;
-      contextLogger.error(`Failed: ${label} (${duration}ms)`, error instanceof Error ? error.message : error);
+      contextLogger.error({
+        message: `Failed: ${label}`,
+        error,
+        duration,
+      });
       throw error;
     }
   },

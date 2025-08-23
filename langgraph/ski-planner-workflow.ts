@@ -36,18 +36,16 @@ const SkiPlannerState = Annotation.Root({
   }),
 });
 
-type SkiPlannerStateType = typeof SkiPlannerState.State;
-
 /**
  * Weather Analysis Agent
  * Analyzes weather conditions for ski planning
  */
-async function weatherAgent(state: SkiPlannerStateType): Promise<Partial<SkiPlannerStateType>> {
+async function weatherAgent(state: typeof SkiPlannerState): Promise<Partial<typeof SkiPlannerState>> {
   const workflowLogger = createChildLogger({ module: 'langgraph', workflow: 'ski-planner', step: 'weather-analysis' });
   
   return await loggerUtils.timeAsync(
     'Weather analysis',
-    async () => {
+    async (): Promise<Partial<typeof SkiPlannerState>> => {
       const llm = new ChatBedrockConverse({
         model: process.env.AWS_BEDROCK_MODEL || 'arn:aws:bedrock:eu-central-1:287012933369:inference-profile/eu.amazon.nova-lite-v1:0',
         region: process.env.AWS_REGION || 'eu-central-1',
@@ -62,8 +60,8 @@ async function weatherAgent(state: SkiPlannerStateType): Promise<Partial<SkiPlan
       );
 
       const humanMessage = new HumanMessage(
-        `Analyze the weather for skiing at: ${state.location}. 
-        Consider the skill level: ${state.skillLevel}.
+        `Analyze the weather for skiing at: ${state.State.location}. 
+        Consider the skill level: ${state.State.skillLevel}.
         Provide weather insights and safety recommendations.`
       );
 
@@ -73,7 +71,7 @@ async function weatherAgent(state: SkiPlannerStateType): Promise<Partial<SkiPlan
       return {
         weatherInfo: response.content as string,
         messages: [humanMessage, response],
-      };
+      } as Partial<typeof SkiPlannerState>;
     },
     workflowLogger
   );
@@ -83,12 +81,12 @@ async function weatherAgent(state: SkiPlannerStateType): Promise<Partial<SkiPlan
  * Resort Recommendation Agent
  * Recommends ski resorts based on preferences and conditions
  */
-async function resortAgent(state: SkiPlannerStateType): Promise<Partial<SkiPlannerStateType>> {
+async function resortAgent(state: typeof SkiPlannerState): Promise<Partial<typeof SkiPlannerState>> {
   const workflowLogger = createChildLogger({ module: 'langgraph', workflow: 'ski-planner', step: 'resort-recommendations' });
   
   return await loggerUtils.timeAsync(
     'Resort recommendations',
-    async () => {
+    async (): Promise<Partial<typeof SkiPlannerState>> => {
       const llm = new ChatBedrockConverse({
         model: process.env.AWS_BEDROCK_MODEL || 'arn:aws:bedrock:eu-central-1:287012933369:inference-profile/eu.amazon.nova-lite-v1:0',
         region: process.env.AWS_REGION || 'eu-central-1',
@@ -103,9 +101,9 @@ async function resortAgent(state: SkiPlannerStateType): Promise<Partial<SkiPlann
 
       const humanMessage = new HumanMessage(
         `Recommend ski resorts for:
-        Location: ${state.location}
-        Skill Level: ${state.skillLevel}
-        Weather Info: ${state.weatherInfo}
+        Location: ${state.State.location}
+        Skill Level: ${state.State.skillLevel}
+        Weather Info: ${state.State.weatherInfo}
         
         Provide specific resort names with brief explanations.`
       );
@@ -116,7 +114,7 @@ async function resortAgent(state: SkiPlannerStateType): Promise<Partial<SkiPlann
       return {
         resortRecommendations: response.content as string,
         messages: [humanMessage, response],
-      };
+      } as Partial<typeof SkiPlannerState>;
     },
     workflowLogger
   );
@@ -126,12 +124,12 @@ async function resortAgent(state: SkiPlannerStateType): Promise<Partial<SkiPlann
  * Gear Recommendation Agent
  * Suggests appropriate ski gear based on conditions and skill level
  */
-async function gearAgent(state: SkiPlannerStateType): Promise<Partial<SkiPlannerStateType>> {
+async function gearAgent(state: typeof SkiPlannerState): Promise<Partial<typeof SkiPlannerState>> {
   const workflowLogger = createChildLogger({ module: 'langgraph', workflow: 'ski-planner', step: 'gear-suggestions' });
   
   return await loggerUtils.timeAsync(
     'Gear recommendations',
-    async () => {
+    async (): Promise<Partial<typeof SkiPlannerState>> => {
       const llm = new ChatBedrockConverse({
         model: process.env.AWS_BEDROCK_MODEL || 'arn:aws:bedrock:eu-central-1:287012933369:inference-profile/eu.amazon.nova-lite-v1:0',
         region: process.env.AWS_REGION || 'eu-central-1',
@@ -146,9 +144,9 @@ async function gearAgent(state: SkiPlannerStateType): Promise<Partial<SkiPlanner
 
       const humanMessage = new HumanMessage(
         `Recommend ski gear for:
-        Skill Level: ${state.skillLevel}
-        Weather: ${state.weatherInfo}
-        Resorts: ${state.resortRecommendations}
+        Skill Level: ${state.State.skillLevel}
+        Weather: ${state.State.weatherInfo}
+        Resorts: ${state.State.resortRecommendations}
         
         Provide a categorized gear list with explanations.`
       );
@@ -159,7 +157,7 @@ async function gearAgent(state: SkiPlannerStateType): Promise<Partial<SkiPlanner
       return {
         gearSuggestions: response.content as string,
         messages: [humanMessage, response],
-      };
+      } as Partial<typeof SkiPlannerState>;
     },
     workflowLogger
   );
@@ -169,12 +167,12 @@ async function gearAgent(state: SkiPlannerStateType): Promise<Partial<SkiPlanner
  * Planning Coordinator Agent
  * Synthesizes all information into a comprehensive ski plan
  */
-async function plannerAgent(state: SkiPlannerStateType): Promise<Partial<SkiPlannerStateType>> {
+async function plannerAgent(state: typeof SkiPlannerState): Promise<Partial<typeof SkiPlannerState>> {
   const workflowLogger = createChildLogger({ module: 'langgraph', workflow: 'ski-planner', step: 'final-planning' });
   
   return await loggerUtils.timeAsync(
     'Final plan synthesis',
-    async () => {
+    async (): Promise<Partial<typeof SkiPlannerState>> => {
       const llm = new ChatBedrockConverse({
         model: process.env.AWS_BEDROCK_MODEL || 'arn:aws:bedrock:eu-central-1:287012933369:inference-profile/eu.amazon.nova-lite-v1:0',
         region: process.env.AWS_REGION || 'eu-central-1',
@@ -190,14 +188,14 @@ async function plannerAgent(state: SkiPlannerStateType): Promise<Partial<SkiPlan
       const humanMessage = new HumanMessage(
         `Create a comprehensive ski plan using:
         
-        Location: ${state.location}
-        Skill Level: ${state.skillLevel}
+        Location: ${state.State.location}
+        Skill Level: ${state.State.skillLevel}
         
-        Weather Analysis: ${state.weatherInfo}
+        Weather Analysis: ${state.State.weatherInfo}
         
-        Resort Recommendations: ${state.resortRecommendations}
+        Resort Recommendations: ${state.State.resortRecommendations}
         
-        Gear Suggestions: ${state.gearSuggestions}
+        Gear Suggestions: ${state.State.gearSuggestions}
         
         Provide a structured plan with priorities and actionable steps.`
       );
@@ -208,7 +206,7 @@ async function plannerAgent(state: SkiPlannerStateType): Promise<Partial<SkiPlan
       return {
         finalPlan: response.content as string,
         messages: [humanMessage, response],
-      };
+      } as Partial<typeof SkiPlannerState>;
     },
     workflowLogger
   );
@@ -217,7 +215,8 @@ async function plannerAgent(state: SkiPlannerStateType): Promise<Partial<SkiPlan
 /**
  * Creates the ski planning workflow graph
  */
-export function createSkiPlannerWorkflow(): StateGraph<typeof SkiPlannerState> {
+// eslint-disable-next-line @typescript-eslint/explicit-function-return-type
+export function createSkiPlannerWorkflow() {
   const workflow = new StateGraph(SkiPlannerState)
     .addNode('weather_agent', weatherAgent)
     .addNode('resort_agent', resortAgent)

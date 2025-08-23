@@ -1,4 +1,4 @@
-import Fastify from "fastify";
+import { FastifyRequest, FastifyReply, FastifyInstance } from "fastify";
 
 /**
  * Health check route configuration
@@ -24,8 +24,8 @@ interface HealthResponse {
  * Health check route handler
  */
 async function healthHandler(
-  request: Fastify.FastifyRequest,
-  reply: Fastify.FastifyReply
+  request: FastifyRequest,
+  reply: FastifyReply
 ): Promise<HealthResponse> {
   const response: HealthResponse = {
     status: 'ok',
@@ -46,7 +46,7 @@ async function healthHandler(
 /**
  * Register health check route with Fastify
  */
-export default async function healthRoute(fastify: typeof Fastify): Promise<void> {
+export default async function healthRoute(fastify: FastifyInstance): Promise<void> {
   fastify.route({
     method: route.method,
     url: route.path,

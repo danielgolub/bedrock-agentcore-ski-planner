@@ -1,8 +1,7 @@
 #!/usr/bin/env node
 
 import 'dotenv/config';
-import { planSkiTrip, getDetailedSkiPlan, type SkiPlanningResult } from './langgraph/ski-planner-workflow.ts';
-import { logger, loggerUtils, createChildLogger } from './services/logger.ts';
+import { logger } from './services/logger.ts';
 import { startServer, stopServer } from './services/fastify.ts';
 
 /**
@@ -15,7 +14,7 @@ export async function startWebServer(): Promise<void> {
     const server = await startServer();
     
     // Handle graceful shutdown
-    const gracefulShutdown = async (signal: string) => {
+    const gracefulShutdown = async (signal: string): Promise<void> => {
       logger.info(`📡 Received ${signal}, starting graceful shutdown...`);
       await stopServer(server);
       process.exit(0);
